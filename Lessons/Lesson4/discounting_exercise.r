@@ -1,4 +1,4 @@
-#### Discounting - only exercises, consider using .rmd version####
+
 # Libraries
 library(dplyr)
 library(ggplot2)
@@ -28,13 +28,8 @@ plot(GenIns, lattice=TRUE)
 
 # now try to predict what happens with the linse using the chain ladder technique (hint: search for predict)
 
-#YOUR SOLUTION
-#--------
-
-
-
-#--------
-
+chainladder(GenIns)
+predict(chainladder(GenIns))
 
 ########################################
 ## Exercise 2
@@ -43,34 +38,72 @@ plot(GenIns, lattice=TRUE)
 #  Hint: Consider the length of tail, volatility, average sizes...
 #  Hint2: There are 2 types of data - paid and case. Start using Paid...
 
-#YOUR SOLUTION
-# understand the data => run some simple overviews
-
-# create a variable => filter data and covert to triangle. then convert to cummulative to use chainladder
-
 ## STEP1: Take paid data for House business and Small claim size
 # Paid_HH_sml <- dt_PaidCase %>% filter(...) 
+Paid_HH_sml <- dt_PaidCase %>% filter(Business == "House" & ClaimSize == "Small" & dataset_type == "PAID")
 
 
 ## STEP2: Now convert the standard table into a triangle
 # %>% as.triangle(...)
-
+triangle_sml <- Paid_HH_sml %>% as.triangle(Paid_HH_sml, origin = "ay", dev = "dy", value = "SumOfamount")
+View(triangle_smll) # zobrazim tabulku
+head(triangle_sml) 
 
 ## STEP3: Now start plotting things to see more information
+plot(triangle_sml,lattice=TRUE)
 
+plot(predict(chainladder(triangle_sml)))
 
 ## STEP4: And get the aging factors and some other stat's out to see more details
 # Hint: ata(...)
 
+ata(triangle_tri)
 
-## Now repeat for all types of buiness and sizes of claims. Compare the findings...
+## Now repeat for all types of buiness and sizes of claims. Compare the finding "ay", dev = "dy", value = "SumOfamount")
+
+Paid_HH_lrg <- dt_PaidCase %>% filter(Business == "House" & ClaimSize == "Large" & dataset_type == "PAID")
+triangle_lrg <- Paid_HH_lrg %>% as.triangle(Paid_HH_lrg, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_lrg,lattice=TRUE)
+plot(predict(chainladder(triangle_lrg)))
+ata(triangle_lrg)
+###
+Paid_3P_sml <- dt_PaidCase %>% filter(Business == "3rd Party" & ClaimSize == "Small" & dataset_type == "PAID")
+triangle_sml_ou <- Paid_3P_sml %>% as.triangle(Paid_3P_sml, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_sml_ou,lattice=TRUE)
+plot(predict(chainladder(triangle_sml_ou)))
+ata(triangle_sml_ou)
+###
+Paid_3P_lrg <- dt_PaidCase %>% filter(Business == "3rd Party" & ClaimSize == "Large" & dataset_type == "PAID")
+triangle_lrg_ou <- Paid_3P_lrg %>% as.triangle(Paid_3P_lrg, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_lrg_ou,lattice=TRUE)
+plot(predict(chainladder(triangle_lrg_ou)))
+ata(triangle_lrg_ou)
+
 
 
 ## If you are now comforatble with what this does, try doing the same, but using additional information: The Case data!
 ## Hint: Sum Paid and Case together to come up with the final claims estimates (the Incurred claims)
 
 
-#--------
+#summed paid and case, using additional information
+
+Paid_HH_lrg <- dt_PaidCase %>% filter(Business == "House" & ClaimSize == "Large")
+triangle_lrg <- Paid_HH_lrg %>% as.triangle(Paid_HH_lrg, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_lrg,lattice=TRUE)
+plot(predict(chainladder(triangle_lrg)))
+ata(triangle_lrg)
+###
+Paid_3P_sml <- dt_PaidCase %>% filter(Business == "3rd Party" & ClaimSize == "Small")
+triangle_sml_ou <- Paid_3P_sml %>% as.triangle(Paid_3P_sml, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_sml_ou,lattice=TRUE)
+plot(predict(chainladder(triangle_sml_ou)))
+ata(triangle_sml_ou)
+###
+Paid_3P_lrg <- dt_PaidCase %>% filter(Business == "3rd Party" & ClaimSize == "Large")
+triangle_lrg_ou <- Paid_3P_lrg %>% as.triangle(Paid_3P_lrg, origin = "ay", dev = "dy", value = "SumOfamount")
+plot(triangle_lrg_ou,lattice=TRUE)
+plot(predict(chainladder(triangle_lrg_ou)))
+ata(triangle_lrg_ou)
 
 ########################################
 ## Exercise 3
@@ -78,84 +111,18 @@ plot(GenIns, lattice=TRUE)
 ## What do you think, how long are the average delays in payments? Set up a table, that will 
 ## show your assumptions and commit it to your git repository.
 
-########################################
-## Exercise 4
-# Use the data provided in exercise 2 and try to come up with an estimates of the average duration. 
-# How does it work? Well, discounting apart, in what year does the average payment happen? 
-# HINT: (Here you definitely use paid claims, and it is enough to calculate weighted average of incremental payment)
-
-## STEP1: get the weights of incremental paid triangle => this is what we are intrested in because individual payments matter
+#COMM
+#Pri houses mame vyssie simple averages ako 3rd Party.
+#Jedno plnenie je postacujuce \lahke chvosty\ na rozdiel od 3rd party (problemy \tazke chvosty\).
+#Takmer minimalny rozdiel medzi small a large houses.A tiez rozdiel small a large 3rd Party nie je az tak moc velky, co sme mohli ocakavat.
 
 
 
-## STEP2: average duration (calculate a weighted sum, where the weight is the number of year/total cummulative paid sum)
 
 
 
-# Does the value calculated correspond to your assumed value for the given business in Exercise 2? Comment on the findings in your notes...
-
-
-########################################
-## Exercise 5 
-# Now, assume an interest rate of 5%. How will the discounting change this?
-# Calculate a factor to be applied to the final incurred claims, to make discout it to present value.
-
-# Let's start simply: What would the average disocunt factor be? Use the average duration from Exercise 4
 
 
 
-# Now let's be more precise and use the appropriate weights and individual discount factors one by one
-# Hint: Discount every term of the sum in Exercise 3 by appropriate discount factor (1+i)^(-year)
 
 
-
-# Recall what is UWR from Lesson 2. Assume premium and expenses are calculated on day 1.
-# Can you calculate a sigle number, that could be used to discount the claims to arrive to Net present value of UWR?
-
-########################################
-## Exercise 6
-# Now, let’s have a look at it from the other way around. 
-# The following dataset includes the same data you were analysing in class 2, but it is all discounted...
-NPV_data <- read.csv("./Data/lesson4_NPV.csv")
-
-# What is the average duration in all of these cases assuming a discount rate of 5%?
-
-
-# What is the worst performing portfolio now? 
-# (Hint: Create additional shiny graphs, but using the discounted values)
-
-
-########################################
-## Exercise 7
-# Imagine there are 100 houses around a river and each is worth 100,000.
-# A big flood happens once every 100 and destroys everything.
-# A small one every 5 years and destroys 1 house.
-# What is the average loss per year (simple premium)? What is the volatility of the losses?
-
-# How much do you think a reasonable premium should be to protect the customers?
-
-
-########################################
-## Exercise 8 - reflect in notes
-
-
-########################################
-## Exercise 9
-
-# Look at the data provided. Identify examples, where 2 portfolios are similar (1 dimension is different), and the CIR is bigger or smaller. Be creative and find any dependencies...
-
-CIR_data <- read.csv("./Data/lesson4_CIR.csv")
-
-# What is the total value of capital required to run the whole business from lesson 2?
-# Use the data provided that refers to the same portfolios, you were looking at in lesson2. 
-# How has it changed over the years?
-
-########################################
-## Exercise 10 - put it all together (HOMEWORK)
-# You know what the Mean term is of the data, as you know what the discount factors are 
-# and you assumed 5% discount rate (Exercies 6).
-# You also know what the capital intensity ratios are (Exercise 9).
-# You also know the Net Earned Premium (Lesson2 data)
-# How much does it cost to hold the Capital amount in terms of interest paid
-# for that for the average (Mean Term) period?
-# Hint: Using 'dplyr' package and function left_join requires column names to be the same to join...
